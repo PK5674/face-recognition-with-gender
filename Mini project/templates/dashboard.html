@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Raleway:wght@300;600&display=swap');
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+            overflow: hidden;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(90deg, #42a5f5, #7e57c2);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: rgba(255, 255, 255, 0.9); /* Improved text contrast */
+        }
+
+        /* ROBOT FACE */
+        .robot-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .robot-face {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+            animation: glow 2s infinite alternate;
+            border: 2px solid white;
+        }
+
+        .eye {
+            width: 15px;  /* Increased eye size */
+            height: 15px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            border: 2px solid black;
+            top: 30px; /* Adjusted for better position */
+        }
+
+        .eye.left { left: 18px; animation: blink 3s infinite; }
+        .eye.right { right: 18px; animation: blink 3s infinite; }
+
+        .dots {
+            position: absolute;
+            bottom: 15px;
+            width: 6px;
+            height: 6px;
+            background: white;
+            border-radius: 50%;
+            animation: moveDots 2s infinite alternate;
+        }
+
+        .dot1 { left: 20px; bottom:10px; animation-delay: 0s; }
+        .dot2 { left: 35px; bottom : 10px; animation-delay: 0.5s; }
+        .dot3 { left: 50px; bottom: 10px;animation-delay: 1s; }
+
+        @keyframes blink {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(0.3); }
+        }
+
+        @keyframes moveDots {
+            from { transform: translateY(0); }
+            to { transform: translateY(-5px); }
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.5); }
+            to { box-shadow: 0px 0px 25px rgba(0, 255, 255, 0.9); }
+        }
+
+        /* BUTTON STYLES */
+        .btn {
+            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+
+        .new-user {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.6); /* Stronger glow */
+        }
+
+        .mark-attendance {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.6); /* Stronger glow */
+        }
+
+        .btn:hover {
+            transform: scale(1.1); /* Slightly stronger hover effect */
+        }
+
+        /* PARTICLE EFFECT */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="particles"></div>
+
+    <div class="container">
+        <!-- ROBOT FACE -->
+        <div class="robot-container">
+            <div class="robot-face">
+                <div class="eye left"></div>
+                <div class="eye right"></div>
+                <div class="dots dot1"></div>
+                <div class="dots dot2"></div>
+                <div class="dots dot3"></div>
+            </div>
+        </div>
+
+        <h1>Face Recognition Attendance System <br> with Gender Prediction</h1>
+        
+        <div class="flex justify-center gap-6 mt-6">
+            <button class="btn new-user" onclick="window.location.href='/newuser'">New User</button>
+            <button class="btn mark-attendance" onclick="window.location.href='/mark_attendance'">Mark Attendance</button>
+        </div>
+    </div>
+
+    <script>
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) { // Increased from 30 to 50
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                let size = Math.random() * 6 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+
+</body>
+</html>

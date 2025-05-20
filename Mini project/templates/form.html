@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New User Registration</title>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 500px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            transition: 0.3s ease-in-out;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            border-color: #6e8efb;
+            box-shadow: 0 0 10px rgba(110, 142, 251, 0.5);
+            outline: none;
+        }
+
+        #video, #canvas {
+            width: 100%;
+            display: none;
+            border-radius: 6px;
+        }
+
+        #preview {
+            width: 100%;
+            height: auto;
+            display: none;
+            border-radius: 6px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+            color: white;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: 0.3s ease-in-out;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2328ac, #2109fb);
+            box-shadow: 0 5px 15px rgba(33, 9, 251, 0.3);
+        }
+
+              /* PARTICLE EFFECT */
+      .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles"></div>
+    <div class="container">
+        <h2>New User Registration</h2>
+        <form id="userForm">
+            <div class="form-group">
+                <label>Name :</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label>Roll Number :</label>
+                <input type="text" id="roll" name="roll" required>
+            </div>
+            <div class="form-group">
+                <label>Email :</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number :</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label>Gender :</label>
+                <select id="gender" name="gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Department :</label>
+                <input type="text" id="department" name="department" required>
+            </div>
+            <div class="form-group">
+                <label>Profile Picture :</label>
+                <input type="file" id="fileInput" name="profile_pic" accept="image/*">
+                <video id="video" autoplay></video>
+                <canvas id="canvas"></canvas>
+                <img id="preview">
+                <button type="button" class="btn" id="captureBtn">Capture Photo</button>
+                <input type="hidden" id="captured_image" name="captured_image">
+            </div>
+            <button type="submit" class="btn">Register</button>
+        </form>
+    </div>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const fileInput = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const form = document.getElementById('userForm');
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                captureBtn.textContent = 'Take Picture';
+            } catch (err) {
+                console.error("Camera access error:", err);
+            }
+        }
+
+
+
+        captureBtn.addEventListener('click', async () => {
+    if (!video.srcObject) {
+        try {
+            let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            captureBtn.textContent = 'Take Picture';
+        } catch (err) {
+            console.error("Camera access error:", err);
+        }
+    } else {
+        // Debugging logs BEFORE capturing the image
+        console.log("Video readyState:", video.readyState);
+        console.log("Video width:", video.videoWidth);
+        console.log("Video height:", video.videoHeight);
+        // Ensure video is playing before capturing
+        if (video.readyState >= 2) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            setTimeout(() => { // Add delay before capturing
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/png');
+
+                preview.src = imageData;
+                preview.style.display = 'block';
+                document.getElementById('captured_image').value = imageData;
+
+                // Stop video stream after capture
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.style.display = 'none';
+            }, 500); // 500ms delay
+        } else {
+            console.error("Video not ready yet.");
+        }
+    }
+});
+
+
+
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            alert('Form submitted! Backend integration required.');
+        });
+
+
+        document.getElementById('captureBtn').addEventListener('click', async function () {
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const preview = document.getElementById('preview');
+    const ctx = canvas.getContext('2d');
+
+    if (!video.srcObject) {
+        try {
+            let stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+            video.style.display = 'block';
+            captureBtn.textContent = 'Take Picture';
+        } catch (err) {
+            console.error("Camera access error:", err);
+        }
+    } else {
+        if (video.readyState >= 2) {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            requestAnimationFrame(() => {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                let imageData = canvas.toDataURL('image/png');
+
+                // Resize image before storing
+                resizeImage(imageData, 400, 400, (resizedImage) => {
+                    preview.src = resizedImage;
+                    preview.style.display = 'block';
+                    document.getElementById('captured_image').value = resizedImage;
+                });
+
+                // Stop video stream after capture
+                video.srcObject.getTracks().forEach(track => track.stop());
+                video.style.display = 'none';
+            });
+        } else {
+            console.error("Video not ready yet.");
+        }
+    }
+});
+
+// Resize function
+function resizeImage(imageData, maxWidth, maxHeight, callback) {
+    let img = new Image();
+    img.src = imageData;
+    img.onload = function () {
+        let canvas = document.createElement('canvas');
+        let ctx = canvas.getContext('2d');
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+                height *= maxWidth / width;
+                width = maxWidth;
+            } else {
+                width *= maxHeight / height;
+                height = maxHeight;
+            }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        callback(canvas.toDataURL('image/png', 0.6)); // Reduce quality to 60%
+    };
+}
+
+
+function dataURItoBlob(dataURI) {
+    let byteString = atob(dataURI.split(',')[1]);
+    let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    let ab = new ArrayBuffer(byteString.length);
+    let ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+}
+
+document.getElementById('userForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    let formData = new FormData(document.getElementById('userForm'));
+
+    let capturedImage = document.getElementById('preview').src;
+    if (capturedImage.startsWith("data:image")) {
+        let imageBlob = dataURItoBlob(capturedImage);
+        formData.append("profile_pic", imageBlob, "profile.png");
+    }
+
+    try {
+        let response = await fetch('/form-register', {
+            method: 'POST',
+            body: formData
+        });
+
+        let result = await response.json();
+        if(result.redirect) {
+            window.location.href = result.redirect;  //redirect to dashboard
+        }else {
+            alert(result.message);  // show success or error message
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Registration failed.');
+    }
+});
+function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) { // Increased from 30 to 50
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                let size = Math.random() * 6 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+
+
+    </script>
+</body>
+</html>

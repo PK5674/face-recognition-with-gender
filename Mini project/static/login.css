@@ -1,0 +1,153 @@
+/* General Styling */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #f8f7f7;
+}
+
+.video-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+}
+
+#myVideo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the video covers the entire area */
+}
+
+/* Login Container */
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgb(245, 244, 244);
+    overflow: hidden;
+    border: transparent;
+}
+
+.login-card {
+    padding: 20px 30px;
+    border: transparent;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.login-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #2a89d4;
+}
+
+.login-header p {
+    margin: 5px 0;
+    color: #fcfafa;
+}
+
+/* Input Fields */
+.input-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #fafafa;
+    border-radius: 5px;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #fbfefb;
+    outline: none;
+}
+
+/* Show Password */
+.show-password {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    cursor: pointer;
+    color: #fbfbfb;
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn {
+    width: 100%;
+    background: #2a89d4;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn:hover {
+    background: #2469a8;
+}
+
+/* Additional Links */
+.forgot-password {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.forgot-password a {
+    color: #2a89d4;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.register-link p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: #f8faf8;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}

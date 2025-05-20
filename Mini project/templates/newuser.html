@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Auth</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+      body {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+          transition: all 0.3s ease-in-out;
+          color: white;
+      }
+      .container {
+         
+          padding: 30px;
+          border-radius: 15px;
+          box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+          text-align: center;
+          transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+          width: 350px;
+          position: relative;
+          border: transparent;
+          
+       
+        
+      }
+      .container:hover {
+          transform: scale(1.05);
+          box-shadow: 0px 15px 40px rgba(0, 0, 0, 0.3);
+          
+      }
+      .hidden {
+          display: none;
+      }
+      .input-box {
+          position: relative;
+          display: flex;
+          align-items: center;
+          margin: 10px 0;
+      }
+      .input-box i {
+          position: absolute;
+          left: 10px;
+          color: #1e1e2e, #3a3a52;
+      }
+      input {
+          width: 100%;
+          padding: 10px 10px 10px 30px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          transition: box-shadow 0.3s ease-in-out;
+      }
+      input:focus {
+          box-shadow: 0px 0px 15px rgba(255, 94, 98, 0.5);
+      }
+      button {
+          background: #007bff;
+          color: white;
+          padding: 10px;
+          border: none;
+          width: 100%;
+          cursor: pointer;
+          border-radius: 5px;
+          transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+      }
+      button:hover {
+         
+          transform: scale(1.05);
+      }
+      .fade-in {
+          animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      /* PARTICLE EFFECT */
+      .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles"></div>
+    <div class="container fade-in">
+        <div class="form-box login-box">
+            <h2>Admin Login</h2>
+            <form id="login-form">
+                <div class="input-box">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="show-signup" style="color: white;">Sign up</a></p>
+        </div>
+
+        <div class="form-box signup-box hidden">
+            <h2>Sign Up</h2>
+            <form id="signup-form">
+                <div class="input-box">
+                    <input type="text" id="username" name="username" placeholder="Name" required>
+                </div>
+                <div class="input-box">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                <div class="input-box">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+                <button type="submit">Create Account</button>
+            </form>
+            <p>Already have an account? <a href="" id="show-login" style="color: white;">Login</a></p>
+        </div>
+    </div>
+    <script>
+document.getElementById('show-signup').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('.login-box').classList.add('hidden');
+    document.querySelector('.signup-box').classList.remove('hidden');
+});
+
+document.getElementById('show-login').addEventListener('click', (e) => {
+    e.preventDefault();
+    document.querySelector('.signup-box').classList.add('hidden');
+    document.querySelector('.login-box').classList.remove('hidden');
+});
+
+
+async function handleFormSubmit(event, url, successMessage) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    if (!data.email?.trim() || !data.password?.trim()) {
+        displayMessage('Email and password are required', false);
+        return;
+    }
+
+    if (url === '/signup' && (!data.username?.trim() || data.password.length < 6)) {
+        displayMessage('All fields are required & password must be at least 6 characters', false);
+        return;
+    }
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        displayMessage(result.message, response.ok);
+
+        if (response.ok && url === '/signup') {
+            setTimeout(() => document.getElementById('show-login').click(), 1500);
+        }
+    } catch (error) {
+        displayMessage('Something went wrong. Try again.', false);
+    }
+}
+
+
+
+document.getElementById('signup-form').addEventListener('submit', (e) => 
+    handleFormSubmit(e, '/signup', 'Account created successfully!')
+);
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch('/admin-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        displayMessage(result.message, response.ok);
+
+        if (response.ok && result.redirect) {
+            setTimeout(() => window.location.href = result.redirect, 1500);
+        }
+    } catch (error) {
+        displayMessage('Login failed. Please try again.', false);
+    }
+});
+
+
+function displayMessage(message, isSuccess) {
+    const msgBox = document.createElement('div');
+    msgBox.textContent = message;
+    msgBox.style.padding = '10px';
+    msgBox.style.marginTop = '10px';
+    msgBox.style.borderRadius = '5px';
+    msgBox.style.color = '#fff';
+    msgBox.style.textAlign = 'center';
+    msgBox.style.fontSize = '14px';
+    msgBox.style.backgroundColor = isSuccess ? 'green' : 'red';
+
+    document.querySelector('.container').appendChild(msgBox);
+    
+    setTimeout(() => msgBox.remove(), 3000);
+}
+    function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) { // Increased from 30 to 50
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                let size = Math.random() * 6 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+    </script>
+</body>
+</html>

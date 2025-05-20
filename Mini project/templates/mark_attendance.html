@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Mark Attendance</title>
+    <script src='https://cdn.tailwindcss.com'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+            width: 600px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 0;
+        }
+        .mark-attendance {
+            background: linear-gradient(135deg, #1e1e2e, #3a3a52);
+            color: white;
+        }
+        /* Popup Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+        .popup table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .popup table, .popup th, .popup td {
+            border: 1px solid black;
+        }
+        .popup th, .popup td {
+            padding: 8px;
+            text-align: center;
+        }
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            top: 0;
+            left: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: float 5s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-50px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 0.5; }
+        }
+        video{
+            width: 500px;
+            display: block;
+            margin: 0 auto;
+            max-width: 400px;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="particles"></div>
+    <div class='glass-card'>
+        <h1 class='text-4xl font-bold text-gray-800'>Mark Attendance</h1>
+        <div id='video-container' class='mt-4'>
+            <video id='video' width='320' height='240' autoplay></video>
+            <button class='btn mark-attendance mt-4' id='capture'>Capture & Verify</button>
+        </div>
+        <button class='btn mt-4' onclick="window.location.href='/dashboard'">Back to Dashboard</button>
+    </div>
+
+    <!-- Popup Window -->
+    <div id='attendancePopup' class='popup'>
+        <h2>Attendance Confirmed</h2>
+        <p><strong>Name:</strong> <span id='studentName'></span></p>
+        <p><strong>Roll Number:</strong> <span id='studentRoll'></span></p>
+        <p><strong>Gender:</strong> <span id='studentGender'></span></p>
+        <h3>Today's Schedule</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Period</th>
+                    <th>Time</th>
+                    <th>Subject</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody id='scheduleTable'></tbody>
+        </table>
+        <button class='btn mt-4' onclick="$('#attendancePopup').hide();">Close</button>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            let video = document.getElementById('video');
+            let captureButton = document.getElementById('capture');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function(stream) {
+                    video.srcObject = stream;
+                })
+                .catch(function(err) {
+                    console.error('Error accessing camera:', err);
+                });
+
+            captureButton.addEventListener('click', function() {
+                let canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                let context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                let imageData = canvas.toDataURL('image/jpeg');
+
+                console.log("Captured Image Data:", imageData);
+
+                $.ajax({
+                    url: '/process_attendance',
+                    type: 'POST',
+                    data: JSON.stringify({ image: imageData }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        $('#studentName').text(response.name);
+                        $('#studentRoll').text(response.roll);
+                        $('#studentGender').text(response.gender);
+                        let scheduleTable = $('#scheduleTable');
+                        scheduleTable.empty();
+                        if (response.schedule.length > 0) {
+                            response.schedule.forEach(function(item) {
+                                scheduleTable.append(`<tr><td>${item.period}</td><td>${item.time_start} - ${item.time_end}</td><td>${item.subject}</td><td>${item.location}</td></tr>`);
+                            });
+                        } else {
+                            scheduleTable.append('<tr><td colspan="4">No schedule for today</td></tr>');
+                        }
+                        $('#attendancePopup').show();
+                    },
+                    error: function() {
+                        alert('Error processing attendance.');
+                    }
+                });
+            });
+        });
+
+        function createParticles() {
+            const particlesContainer = document.querySelector('.particles');
+            for (let i = 0; i < 50; i++) { // Increased from 30 to 50
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                let size = Math.random() * 6 + 4;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.top = `${Math.random() * 100}%`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
